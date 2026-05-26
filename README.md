@@ -2,19 +2,41 @@
 
 A rules engine, threat radar, and thread command toolkit for Reddit moderators who are tired of doing the same cleanup by hand every single day.
 
-## Crowd Control
+## A Moderators best friend
 
-AutoEnforcer is command-first for moderators who need immediate control in active threads. Use simple comment commands to freeze or reset waves, apply timeout or silence windows, lock down posts, sticky critical context, and undo changes when needed. 
+AutoEnforcer is command-first for moderators who need immediate control in active threads. Use simple comment commands to freeze or reset waves, apply timeout or silence windows, lock down posts, sticky critical context, and undo changes when needed. Every command is backed by live subreddit and thread signals so you can quickly target disruptive accounts and stabilize discussions without having to lock them down. We don't ban the users either, we put them on timeout for the duration of your choice or you can rate limit them depending on which command you use. You can even target clusters or sections and AutoEnforcer will handle business. 
 
-Every command is backed by live subreddit and thread signals so you can quickly target disruptive accounts and stabilize discussions without having to lock them down. 
+When a user is timed out their comments are instantly wiped from that thread, and they are sent a message notifying them of the remaining time left. If you rate limit a user you can choose how often you want to allow them to post and how long you want that to last. AutoEnforcer will Enforce the rest. With several different commands for many different situations and a rule engine for subs of all sizes, there is no sub too big or too small for AutoEnforcer to handle.
 
-We don't ban the users either, we put them on timeout for the duration of your choice or you can rate limit them depending on which command you use. You can even target clusters or sections and AutoEnforcer will handle business. 
+# Crowd Control
 
-When a user is timed out their comments are instantly wiped from that thread, and they are sent a message notifying them of the remaining time left. If you rate limit a user you can choose how often you want to allow them to post and how long you want that to last. 
+Crowd Control is what you want to use if you have a high volume sub and want to keep good posts alive longer
 
-AutoEnforcer will Enforce the rest. With several different commands for many different situations and a rule engine for subs of all sizes, there is no sub too big or too small for AutoEnforcer to handle.
+- `!crowdcontrol on [light|medium|strict|auto|<seconds>]` - hold non-mod comments on this post in a queue and release them on a score-adaptive cadence. Baseline interval per level: `light` 10s, `medium` 30s (default), `strict` 60s. A numeric value is treated as custom seconds (clamped 5-600). `auto` scales the active tier with post score (and re-picks as the score moves, with hysteresis to avoid flapping). AutoMod-removed comments are skipped (never queued or released), and a second pending comment from the same author is auto-removed.
+	- Example: `!crowdcontrol on`
+	- Example: `!crowdcontrol on strict`
+	- Example: `!crowdcontrol on auto`
+	- Example: `!crowdcontrol on 45`
+	- Tier quality gates: `light` requires ~50 karma, ~7d account age, 4+ char bodies; `medium` requires ~100 karma, ~30d age, 8+ chars and tighter anti-spam; `strict` requires ~250 karma, ~90d age, 15+ chars with strict anti-spam. Comments that fail the gate are removed (not queued).
+	- Trusted contributors with substantial sub history (or high karma) skip the queue automatically.
+- `!crowdcontrol off` - disable crowd control on this post and drop the pending queue.
+	- Example: `!crowdcontrol off`
+- `!crowdcontrol on ALL [level] [gateScore]` - (modmail only) enable sub-wide crowd control. New posts auto-enable once their score reaches the gate. Default gate is 50; mods can set any value from 50 to 800.
+	- Example: `!crowdcontrol on ALL medium`
+	- Example: `!crowdcontrol on ALL strict 200`
+	- Example: `!crowdcontrol on ALL auto 500`
+- `!crowdcontrol off ALL` - (modmail only) disable sub-wide crowd control. In-flight posts already on crowd control stay on until manually turned off.
+	- Example: `!crowdcontrol off ALL`
 
-## The Commands
+![CC1](https://seovegas.s3.us-east-2.amazonaws.com/crowdcontrol.png)
+
+
+![CC2](https://seovegas.s3.us-east-2.amazonaws.com/crowdcontroloff.png)
+
+
+![CC1](https://seovegas.s3.us-east-2.amazonaws.com/crowdcontrolmailon.png)
+
+
 
 Post these as a moderator comment in the thread you want to act on.
 Add `-s` only to group-targeting commands (`!reset`, `!freeze`, `!timeout`, `!silence`) to have AutoEnforcer post and sticky a summary comment of the affected users on the post.
@@ -78,6 +100,8 @@ Control command prefixes accepted by parser: `!command`, `-command`, and `!-comm
 	- Example: `!history u/someuser`
 - If run from inside a modmail conversation, AutoEnforcer replies in that same conversation.
 - If run from a moderator comment context, AutoEnforcer creates a new internal modmail and posts the history there.
+
+![HISTORY](https://seovegas.s3.us-east-2.amazonaws.com/history.png)
 
 ### Hotlist commands (modmail control)
 
@@ -269,6 +293,42 @@ All rule data, user scores, activity metrics, and moderation logs are stored onl
 - Added `!norules [username]` command to clear an active rules challenge for a user. Available in both modmail and comment surfaces, matching `!rules` parity.
 - Removed a comment-trigger bypass that allowed challenged users to slip thread-command-shaped comments past the rules-challenge enforcer. Challenged users' comments are now always gated until they complete the challenge; mods can use `!norules` from modmail as the escape hatch.
 - `!rules` and `!norules` are now confirmed to work from both modmail and comments, with mod-only authorization and a modlog entry for every clear.
+- Companion Chrome extension wired up end-to-end: encrypted wiki-snapshot publisher on the server, AES-GCM client decryption, multi-subreddit key slots, inline diagnostic pills on posts and comments, and an in-page command palette. See the **Chrome Extension - Coming Soon** section below for the full security posture.
+- Hardened the extension runtime: 6-second message timeouts, bounded prefetch concurrency, debounced badge attachment, orphan-popover cleanup, retry-on-click for failed loads, and SPA navigation re-attach so badges survive Reddit's client-side routing.
+- Strict per-sub UI gating: pills, dossiers, and the command palette only render on subreddits whose encryption keys you've explicitly registered. Other subs see zero AutoEnforcer UI and zero network activity.
+- Badge placement now anchors next to the author byline on both `shreddit-post` feed cards and `shreddit-comment` threads, so pills sit inline with the username instead of grabbing a phantom row above the title.
+
+## Chrome Extension - Coming Soon
+
+A companion Chrome extension is on the way, designed to bring AutoEnforcer's intel and command surface directly into the Reddit web UI without ever leaving the moderator's browser tab.
+
+![Chrome1](https://seovegas.s3.us-east-2.amazonaws.com/commands.png)
+
+![Chrome2](https://seovegas.s3.us-east-2.amazonaws.com/chrome1.png)
+
+![Chrome3](https://seovegas.s3.us-east-2.amazonaws.com/chrome2.png)
+
+### What it does
+
+- **Inline diagnostic pills** on every post and comment in your subreddit - author risk, report pressure, account age, and trust score render right next to the byline so you can triage without clicking through.
+- **Click-to-expand dossiers** showing recent history, mod actions, and derived scores for any user, pulled live from your sub's own Redis snapshot.
+- **In-page command palette** for issuing thread commands (`!timeout`, `!silence`, `!freeze`, `!lockdown`, etc.) without typing them as comments - keyboard-driven, autocompleted, and scoped to the thread you're viewing.
+- **Multi-subreddit slot support** - mods running multiple communities can register a key per sub and the extension auto-gates UI to only show pills on subs you've actually authorized.
+
+### Security posture
+
+The extension is built around a zero-trust, zero-exfiltration model:
+
+- **AES-GCM A256GCM encrypted snapshots.** Diagnostic data never leaves Reddit in cleartext. The server publishes an encrypted JSON snapshot to a moderator-only wiki page on your sub; the extension decrypts it locally in the browser using a key only you hold.
+- **64-hex-character encryption keys, stored in `chrome.storage.local` only.** Keys are never synced, never transmitted, never logged. Lose the key, lose the data - that's the point.
+- **Per-subreddit key isolation.** Each subreddit slot carries its own key. A compromised key for one sub cannot decrypt another sub's snapshot.
+- **Strict subreddit gating.** Pills, dossiers, and the command palette only render on subreddits whose keys you've explicitly added. Browsing r/all or any unconfigured sub shows zero AutoEnforcer UI and makes zero network calls.
+- **No external servers.** The extension talks only to `reddit.com`. There is no analytics endpoint, no telemetry, no third-party fetch, no remote config. Inspect the network tab - you'll see Reddit and nothing else.
+- **Manifest V3, minimum permissions.** `host_permissions` are scoped to `reddit.com` only. No `<all_urls>`, no `tabs`, no `webRequest`, no `cookies`.
+- **Bounded runtime.** Every background message has a 6-second timeout, prefetch concurrency is capped at 3, and badge attachment is debounced - so a flaky network or a hostile page cannot wedge your browser or stampede Reddit's API.
+- **Open source, GPL-3.0.** The extension ships from the same repo as the server. Every line of crypto, every network call, every storage write is auditable.
+
+Pairing the extension with AutoEnforcer means your moderation surface lives where you already work - in the thread, on the post, next to the comment - with full cryptographic guarantees that nothing crosses the wire that shouldn't.
 
 ## License
 
