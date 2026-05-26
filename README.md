@@ -288,11 +288,21 @@ All rule data, user scores, activity metrics, and moderation logs are stored onl
 
 ## Updates
 
-### This version
+### v1.3.1
 
-- Added `!norules [username]` command to clear an active rules challenge for a user. Available in both modmail and comment surfaces, matching `!rules` parity.
-- Removed a comment-trigger bypass that allowed challenged users to slip thread-command-shaped comments past the rules-challenge enforcer. Challenged users' comments are now always gated until they complete the challenge; mods can use `!norules` from modmail as the escape hatch.
-- `!rules` and `!norules` are now confirmed to work from both modmail and comments, with mod-only authorization and a modlog entry for every clear.
+- Fixed `!stickycomment` failing with a `comment-sticky-forbidden` error. The Devvit `distinguish` API requires a plain boolean argument — corrected all call sites.
+- `!stickycomment` now clears any existing stickied comment on the post before applying the new one, preventing silent rejections when a comment is already stickied.
+- Added an `alreadyStickied` guard: if the target comment is already distinguished, the sticky step is skipped and only the timed-release job is scheduled.
+- `!sentry` now clears the previous sticky before distinguishing its summary comment, so repeated sentry calls on the same post no longer fail.
+
+### v1.3.0
+
+- Added `!norules [username]` command to clear an active rules challenge for a user. Works in both modmail and comments, matching `!rules` parity.
+- Removed a comment-trigger bypass that allowed challenged users to slip thread-command-shaped comments past the rules-challenge enforcer. Challenged users are now always gated until they pass; mods can use `!norules` as the escape hatch.
+- `!rules` and `!norules` confirmed working from both modmail and comments, with mod-only authorization and a modlog entry for every action.
+
+### v1.2.0
+
 - Companion Chrome extension wired up end-to-end: encrypted wiki-snapshot publisher on the server, AES-GCM client decryption, multi-subreddit key slots, inline diagnostic pills on posts and comments, and an in-page command palette. See the **Chrome Extension** section below for the full security posture and side-load instructions.
 - Hardened the extension runtime: 6-second message timeouts, bounded prefetch concurrency, debounced badge attachment, orphan-popover cleanup, retry-on-click for failed loads, and SPA navigation re-attach so badges survive Reddit's client-side routing.
 - Strict per-sub UI gating: pills, dossiers, and the command palette only render on subreddits whose encryption keys you've explicitly registered. Other subs see zero AutoEnforcer UI and zero network activity.
