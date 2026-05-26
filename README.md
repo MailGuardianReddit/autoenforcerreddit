@@ -293,14 +293,21 @@ All rule data, user scores, activity metrics, and moderation logs are stored onl
 - Added `!norules [username]` command to clear an active rules challenge for a user. Available in both modmail and comment surfaces, matching `!rules` parity.
 - Removed a comment-trigger bypass that allowed challenged users to slip thread-command-shaped comments past the rules-challenge enforcer. Challenged users' comments are now always gated until they complete the challenge; mods can use `!norules` from modmail as the escape hatch.
 - `!rules` and `!norules` are now confirmed to work from both modmail and comments, with mod-only authorization and a modlog entry for every clear.
-- Companion Chrome extension wired up end-to-end: encrypted wiki-snapshot publisher on the server, AES-GCM client decryption, multi-subreddit key slots, inline diagnostic pills on posts and comments, and an in-page command palette. See the **Chrome Extension - Coming Soon** section below for the full security posture.
+- Companion Chrome extension wired up end-to-end: encrypted wiki-snapshot publisher on the server, AES-GCM client decryption, multi-subreddit key slots, inline diagnostic pills on posts and comments, and an in-page command palette. See the **Chrome Extension** section below for the full security posture and side-load instructions.
 - Hardened the extension runtime: 6-second message timeouts, bounded prefetch concurrency, debounced badge attachment, orphan-popover cleanup, retry-on-click for failed loads, and SPA navigation re-attach so badges survive Reddit's client-side routing.
 - Strict per-sub UI gating: pills, dossiers, and the command palette only render on subreddits whose encryption keys you've explicitly registered. Other subs see zero AutoEnforcer UI and zero network activity.
 - Badge placement now anchors next to the author byline on both `shreddit-post` feed cards and `shreddit-comment` threads, so pills sit inline with the username instead of grabbing a phantom row above the title.
 
-## Chrome Extension - Coming Soon
+## Chrome Extension
 
-A companion Chrome extension is on the way, designed to bring AutoEnforcer's intel and command surface directly into the Reddit web UI without ever leaving the moderator's browser tab.
+A companion Chrome extension brings AutoEnforcer's intel and command surface directly into the Reddit web UI without ever leaving the moderator's browser tab.
+
+> **Official Chrome Web Store listing: coming soon** (submitted for review). In the meantime you can side-load the signed build directly from this repo:
+>
+> - Download: [AutoEnforcerCompanion-0.1.0.zip](https://github.com/MailGuardianReddit/autoenforcerreddit/raw/main/extension/AutoEnforcerCompanion-0.1.0.zip)
+> - SHA256: `09da51b3cc82d29e90f19376e97e82d2c5c920389f17e3af89fd19bcf676ec86`
+>
+> **Install:** extract the zip to a folder you will keep, open `chrome://extensions`, toggle **Developer Mode** on, click **Load unpacked**, and select the extracted folder. Pin the icon, then add your subreddit + decryption key from the AutoEnforcer Devvit app.
 
 ![Chrome1](https://seovegas.s3.us-east-2.amazonaws.com/commands.png)
 
