@@ -4,9 +4,15 @@ A rules engine, threat radar, and thread command toolkit for Reddit moderators w
 
 ## Crowd Control
 
-AutoEnforcer is command-first for moderators who need immediate control in active threads. Use simple comment commands to freeze or reset waves, apply timeout or silence windows, lock down posts, sticky critical context, and undo changes when needed. Every command is backed by live subreddit and thread signals so you can quickly target disruptive accounts and stabilize discussions without having to lock them down. We don't ban the users either, we put them on timeout for the duration of your choice or you can rate limit them depending on which command you use. You can even target clusters or sections and AutoEnforcer will handle business. 
+AutoEnforcer is command-first for moderators who need immediate control in active threads. Use simple comment commands to freeze or reset waves, apply timeout or silence windows, lock down posts, sticky critical context, and undo changes when needed. 
 
-When a user is timed out their comments are instantly wiped from that thread, and they are sent a message notifying them of the remaining time left. If you rate limit a user you can choose how often you want to allow them to post and how long you want that to last. AutoEnforcer will Enforce the rest. With several different commands for many different situations and a rule engine for subs of all sizes, there is no sub too big or too small for AutoEnforcer to handle.
+Every command is backed by live subreddit and thread signals so you can quickly target disruptive accounts and stabilize discussions without having to lock them down. 
+
+We don't ban the users either, we put them on timeout for the duration of your choice or you can rate limit them depending on which command you use. You can even target clusters or sections and AutoEnforcer will handle business. 
+
+When a user is timed out their comments are instantly wiped from that thread, and they are sent a message notifying them of the remaining time left. If you rate limit a user you can choose how often you want to allow them to post and how long you want that to last. 
+
+AutoEnforcer will Enforce the rest. With several different commands for many different situations and a rule engine for subs of all sizes, there is no sub too big or too small for AutoEnforcer to handle.
 
 ## The Commands
 
