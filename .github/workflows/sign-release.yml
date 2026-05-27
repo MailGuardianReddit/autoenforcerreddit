@@ -1,0 +1,75 @@
+# SPDX-License-Identifier: GPL-3.0-only
+#
+# Sigstore keyless signing for the AutoEnforcer browser-extension release zip.
+#
+# Triggered when a release whose tag starts with `ext-v` is published (the
+# release script in extension/scripts/release.mjs creates these tags). The job
+# downloads the release's zip + SHA256SUMS, signs the zip with cosign using
+# GitHub's OIDC identity (no long-lived keys), and uploads the resulting
+# `.sig` (signature) and `.pem` (signing certificate) back onto the release.
+#
+# Verification (any user):
+#   cosign verify-blob \
+#     --certificate autoenforcer-extension-vX.Y.Z.zip.pem \
+#     --signature  autoenforcer-extension-vX.Y.Z.zip.sig  \
+#     --certificate-identity-regexp 'https://github\.com/.+/AutoEnforcer/\.github/workflows/sign-release\.yml@.+' \
+#     --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+#     autoenforcer-extension-vX.Y.Z.zip
+#
+# The certificate is short-lived (~10 min) and bound to this workflow's OIDC
+# identity; the signature + cert + a Rekor transparency-log entry together
+# prove the zip was produced by this exact workflow on this exact tag.
+
+name: Sign release zip with Sigstore
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write       # upload signatures back onto the release
+  id-token: write       # request GitHub OIDC token for keyless signing
+
+jobs:
+  sign:
+    if: startsWith(github.event.release.tag_name, 'ext-v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: Download release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          mkdir -p signing && cd signing
+          gh release download "$TAG" -R "$GITHUB_REPOSITORY" --pattern 'autoenforcer-extension-*.zip'
+          ls -la
+
+      - name: Sign zip (keyless, OIDC)
+        env:
+          COSIGN_YES: "true"
+        run: |
+          set -euo pipefail
+          cd signing
+          zip=$(ls autoenforcer-extension-*.zip | head -n1)
+          cosign sign-blob \
+            --output-signature   "${zip}.sig" \
+            --output-certificate "${zip}.pem" \
+            "${zip}"
+          sha256sum "${zip}" "${zip}.sig" "${zip}.pem"
+
+      - name: Upload signature + cert to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -euo pipefail
+          cd signing
+          gh release upload "$TAG" \
+            autoenforcer-extension-*.zip.sig \
+            autoenforcer-extension-*.zip.pem \
+            -R "$GITHUB_REPOSITORY" \
+            --clobber
