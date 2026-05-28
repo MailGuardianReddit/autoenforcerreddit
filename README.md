@@ -5,23 +5,23 @@ AutoEnforcer is made to enforce the moderators rules & decisions. It is not a re
 
 ## AE's Signature Features
 Post Menu Features
-![Post Cmds](https://seovegas.s3.us-east-2.amazonaws.com/postcmds.png)
+![Post Cmds](https://seovegas.s3.us-east-2.amazonaws.com/new2/postcmds.png)
 
 Reset Lets you remove all of the posts from the past X minutes up to 120 minutes and banish the users that were caught in the removal from commenting on that post again. (Only affects them from commenting on that post)
 
-![Reset](https://seovegas.s3.us-east-2.amazonaws.com/reset.png)
+![Reset](https://seovegas.s3.us-east-2.amazonaws.com/new2/reset.png)
 
 Drip Mode Toggle will toggle on and off drip mode respectively, Drip Mode is quality and snoo control, it will take action when the post gets hot and start to queue comments from low karma, new accounts, short comments, and a few other factors, while allowing your normal sub contributors to post
 
-![Drip](https://seovegas.s3.us-east-2.amazonaws.com/drip.png)
+![Drip](https://seovegas.s3.us-east-2.amazonaws.com/new2/drip.png)
 
 Sentry Mode Toggle will watch for attempts at brigading by activating and analyzing the comments for patterns it finds and seeing if the commentors have a high match rate of top 5 subs they post in. If so it will lock the post and notify the mods via pm, the sentry mode post will be updated to reflect the people involved.
 
-![Sentry](https://seovegas.s3.us-east-2.amazonaws.com/sentry.png)
+![Sentry](https://seovegas.s3.us-east-2.amazonaws.com/new2/sentry.png)
 
 Banish is a comment menu option that will remove all of the comments made from the user that you issue the action, from that point forward it will not allow that user to make any more comments on that specific post.
 
-![banish](https://seovegas.s3.us-east-2.amazonaws.com/banish.png)
+![banish](https://seovegas.s3.us-east-2.amazonaws.com/new2/banish.png)
 
 
 ## 80+ Presets for subreddits of all sizes!
